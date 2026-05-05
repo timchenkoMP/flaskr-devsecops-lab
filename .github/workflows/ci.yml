@@ -27,10 +27,11 @@ jobs:
       - name: Run tests
         run: pytest tests/ -v || true
 
-      - name: Bandit SAST
-        run: |
-          bandit -r flaskr/ -ll -f json -o bandit-report.json || true
-
+     - name: Bandit SAST
+  run: |
+    bandit -r flaskr/ -ll -f json -o bandit-report.json || true
+    bandit -r flaskr/ -ll || true
+    
       - name: Trivy SCA
         uses: aquasecurity/trivy-action@master
         with:
