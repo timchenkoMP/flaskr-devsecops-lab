@@ -1,6 +1,9 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # вставь сюда код выше
 =======
+=======
+>>>>>>> 5a390b97e59a7ce057f01d6f790e68fb3fd65db3
 name: DevSecOps CI Pipeline
 
 on:
@@ -32,8 +35,17 @@ jobs:
 
       - name: Install Trivy
         run: |
+<<<<<<< HEAD
           wget https://github.com/aquasecurity/trivy/releases/download/v0.48.0/trivy_0.48.0_Linux-64bit.deb
           sudo dpkg -i trivy_0.48.0_Linux-64bit.deb
+=======
+          sudo apt-get update
+          sudo apt-get install -y wget apt-transport-https gnupg
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+          echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update
+          sudo apt-get install -y trivy
+>>>>>>> 5a390b97e59a7ce057f01d6f790e68fb3fd65db3
           trivy --version
 
       - name: Run Trivy
@@ -60,4 +72,7 @@ jobs:
           path: |
             bandit-report.json
             trivy-report.json
+<<<<<<< HEAD
 >>>>>>> ae5dc27e244dfb4ad9b3ef21aa5b97945c749f0d
+=======
+>>>>>>> 5a390b97e59a7ce057f01d6f790e68fb3fd65db3
