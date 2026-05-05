@@ -1,3 +1,4 @@
+cat > .github/workflows/ci.yml << 'EOF'
 name: DevSecOps CI/CD Pipeline
 
 on:
@@ -8,7 +9,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  # JOB 1: Статический анализ (SAST + SCA)
   static-analysis:
     runs-on: ubuntu-latest
     steps:
@@ -51,7 +51,6 @@ jobs:
             bandit-report.json
             trivy-report.json
 
-  # JOB 2: Динамический анализ (DAST) с OWASP ZAP
   dast-scan:
     runs-on: ubuntu-latest
     needs: static-analysis
@@ -92,7 +91,6 @@ jobs:
           name: dast-reports
           path: zap-reports/
 
-  # JOB 3: Security Gate
   security-gate:
     runs-on: ubuntu-latest
     needs: [static-analysis, dast-scan]
@@ -137,3 +135,4 @@ jobs:
 
       - name: Security gate passed
         run: echo "All security checks passed!"
+EOF
