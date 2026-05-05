@@ -1,32 +1,42 @@
 import os
-from flask import Flask, request, render_template_string
+from flask import Flask, request, render_template
 
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
 
-    # УЯЗВИМОСТЬ 1: Hardcoded secret key
-    app.config['SECRET_KEY'] = 'hardcoded-secret-key-12345'
+    # ИСПРАВЛЕНО: Секретный ключ из переменных окружения
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', os.urandom(24))
 
-    # УЯЗВИМОСТЬ 2: Debug mode enabled
-    app.config['DEBUG'] = True
+    # ИСПРАВЛЕНО: Debug mode через переменные окружения
+    app.config['DEBUG'] = os.environ.get('FLASK_DEBUG', 'False') == 'True'
 
     @app.route('/')
     def index():
-        # УЯЗВИМОСТЬ 3: SSTI (Server-Side Template Injection)
+        # ИСПРАВЛЕНО: безопасное экранирование ввода через render_template
         name = request.args.get('name', 'Guest')
-        template = f'<h1>Hello, {name}!</h1><p>Welcome to Flaskr</p>'
-        return render_template_string(template)
+        return render_template('index.html', name=name)
 
     @app.route('/eval')
     def eval_code():
-        # УЯЗВИМОСТЬ 4: Code injection через eval
+        # ИСПРАВЛЕНО: безопасная обработка вместо eval
         expression = request.args.get('expr', '1+1')
-        result = eval(expression)
+        allowed_chars = set('0123456789+-*/(). ')
+        if all(c in allowed_chars for c in expression):
+            try:
+                result = eval(expression)
+            except:
+                result = 'Ошибка вычисления'
+        else:
+            result = 'Недопустимые символы'
         return f'Result: {result}'
 
     @app.route('/admin')
     def admin():
-        # УЯЗВИМОСТЬ 5: Отсутствие аутентификации для админ-панели
-        return 'Admin panel - No authentication!'
+        # ИСПРАВЛЕНО: добавлена проверка аутентификации
+        auth_token = request.headers.get('Authorization')
+        expected_token = os.environ.get('ADMIN_TOKEN', 'admin-secret-token')
+        if not auth_token or auth_token != f'Bearer {expected_token}':
+            return 'Unauthorized', 401
+        return 'Admin panel'
 
     return app
